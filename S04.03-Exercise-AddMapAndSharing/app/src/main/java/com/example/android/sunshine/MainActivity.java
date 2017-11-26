@@ -221,8 +221,19 @@ public class MainActivity extends AppCompatActivity implements ForecastAdapterOn
             return true;
         }
 
-        // TODO (2) Launch the map when the map menu item is clicked
+        // COMPLETED (2) Launch the map when the map menu item is clicked
+        else if (id == R.id.action_map) {
+            Uri mapUri = new Uri.Builder()
+                    .scheme("geo")
+                    .path("0,0")
+                    .query("Omsk")
+                    .build();
 
+            Intent mapIntent = new Intent(Intent.ACTION_VIEW, mapUri);
+            if (mapIntent.resolveActivity(getPackageManager()) != null) {
+                startActivity(mapIntent);
+            }
+        }
         return super.onOptionsItemSelected(item);
     }
 }
