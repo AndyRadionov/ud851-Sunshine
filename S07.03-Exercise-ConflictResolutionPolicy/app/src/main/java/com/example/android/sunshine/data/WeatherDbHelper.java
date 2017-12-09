@@ -95,6 +95,7 @@ public class WeatherDbHelper extends SQLiteOpenHelper {
          * that SQL with the execSQL method of our SQLite database object.
          */
         sqLiteDatabase.execSQL(SQL_CREATE_WEATHER_TABLE);
+        sout
     }
 
     /**
