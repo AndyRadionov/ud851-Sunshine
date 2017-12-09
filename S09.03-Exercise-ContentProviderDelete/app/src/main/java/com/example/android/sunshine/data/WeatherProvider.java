@@ -26,6 +26,8 @@ import android.support.annotation.NonNull;
 
 import com.example.android.sunshine.utilities.SunshineDateUtils;
 
+import static com.example.android.sunshine.data.WeatherContract.*;
+
 /**
  * This class serves as the ContentProvider for all of Sunshine's data. This class allows us to
  * bulkInsert data, query data, and delete data.
@@ -78,7 +80,7 @@ public class WeatherProvider extends ContentProvider {
          * return for the root URI. It's common to use NO_MATCH as the code for this case.
          */
         final UriMatcher matcher = new UriMatcher(UriMatcher.NO_MATCH);
-        final String authority = WeatherContract.CONTENT_AUTHORITY;
+        final String authority = CONTENT_AUTHORITY;
 
         /*
          * For each type of URI you want to add, create a corresponding code. Preferably, these are
@@ -87,14 +89,14 @@ public class WeatherProvider extends ContentProvider {
          */
 
         /* This URI is content://com.example.android.sunshine/weather/ */
-        matcher.addURI(authority, WeatherContract.PATH_WEATHER, CODE_WEATHER);
+        matcher.addURI(authority, PATH_WEATHER, CODE_WEATHER);
 
         /*
          * This URI would look something like content://com.example.android.sunshine/weather/1472214172
          * The "/#" signifies to the UriMatcher that if PATH_WEATHER is followed by ANY number,
          * that it should return the CODE_WEATHER_WITH_DATE code
          */
-        matcher.addURI(authority, WeatherContract.PATH_WEATHER + "/#", CODE_WEATHER_WITH_DATE);
+        matcher.addURI(authority, PATH_WEATHER + "/#", CODE_WEATHER_WITH_DATE);
 
         return matcher;
     }
@@ -150,12 +152,12 @@ public class WeatherProvider extends ContentProvider {
                 try {
                     for (ContentValues value : values) {
                         long weatherDate =
-                                value.getAsLong(WeatherContract.WeatherEntry.COLUMN_DATE);
+                                value.getAsLong(WeatherEntry.COLUMN_DATE);
                         if (!SunshineDateUtils.isDateNormalized(weatherDate)) {
                             throw new IllegalArgumentException("Date must be normalized to insert");
                         }
 
-                        long _id = db.insert(WeatherContract.WeatherEntry.TABLE_NAME, null, value);
+                        long _id = db.insert(WeatherEntry.TABLE_NAME, null, value);
                         if (_id != -1) {
                             rowsInserted++;
                         }
@@ -235,7 +237,7 @@ public class WeatherProvider extends ContentProvider {
 
                 cursor = mOpenHelper.getReadableDatabase().query(
                         /* Table we are going to query */
-                        WeatherContract.WeatherEntry.TABLE_NAME,
+                        WeatherEntry.TABLE_NAME,
                         /*
                          * A projection designates the columns we want returned in our Cursor.
                          * Passing null will return all columns of data within the Cursor.
@@ -252,7 +254,7 @@ public class WeatherProvider extends ContentProvider {
                          * within the selectionArguments array will be inserted into the
                          * selection statement by SQLite under the hood.
                          */
-                        WeatherContract.WeatherEntry.COLUMN_DATE + " = ? ",
+                        WeatherEntry.COLUMN_DATE + " = ? ",
                         selectionArguments,
                         null,
                         null,
@@ -274,7 +276,7 @@ public class WeatherProvider extends ContentProvider {
              */
             case CODE_WEATHER: {
                 cursor = mOpenHelper.getReadableDatabase().query(
-                        WeatherContract.WeatherEntry.TABLE_NAME,
+                        WeatherEntry.TABLE_NAME,
                         projection,
                         selection,
                         selectionArgs,
@@ -293,7 +295,7 @@ public class WeatherProvider extends ContentProvider {
         return cursor;
     }
 
-//  TODO (1) Implement the delete method of the ContentProvider
+//  COMPLETED (1) Implement the delete method of the ContentProvider
     /**
      * Deletes data at a given URI with optional arguments for more fine tuned deletions.
      *
@@ -304,11 +306,21 @@ public class WeatherProvider extends ContentProvider {
      */
     @Override
     public int delete(@NonNull Uri uri, String selection, String[] selectionArgs) {
-        throw new RuntimeException("Student, you need to implement the delete method!");
-
-//          TODO (2) Only implement the functionality, given the proper URI, to delete ALL rows in the weather table
-
-//      TODO (3) Return the number of rows deleted
+//          COMPLETED (2) Only implement the functionality, given the proper URI, to delete ALL rows in the weather table
+        int deletedRows = 0;
+        switch (sUriMatcher.match(uri)) {
+            case CODE_WEATHER:
+                SQLiteDatabase db = new WeatherDbHelper(getContext()).getWritableDatabase();
+                deletedRows = db.delete(WeatherEntry.TABLE_NAME, selection, selectionArgs);
+                break;
+            default:
+                throw new UnsupportedOperationException("Unknown uri: " + uri);
+        }
+//      COMPLETED (3) Return the number of rows deleted
+        if (deletedRows != 0) {
+            getContext().getContentResolver().notifyChange(uri, null);
+        }
+        return deletedRows;
     }
 
     /**
