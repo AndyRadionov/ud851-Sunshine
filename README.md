@@ -6,6 +6,9 @@ To use this repository, fork/clone it, or download a zip using the green "Clone 
 
 When you're done, or if you run into any problems, you can open up the solution code in another Android Studio window, and compare our solution to what you've written!
 
+### Screenshots
+<img src="https://preview.ibb.co/fC0TMd/device_2018_07_03_180041.png" width="200"><img src="https://preview.ibb.co/iGQHEy/device_2018_07_03_180108.png" width="200">
+
 # Contributing
 
 Because of the way this repository is constructed, pull requests don't really work. Issues, however, are gratefully accepted!
